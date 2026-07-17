@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="./javascript.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0a0118" />
+    <title>Happy Birthday ❤️</title>
+    <meta name="description" content="A cinematic birthday surprise, made with love." />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Dancing+Script:wght@500;600;700&family=Inter:wght@300;400;500;600&family=Parisienne&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+    <!-- Custom cursor -->
+    <div class="cursor-heart" id="cursorHeart" aria-hidden="true"></div>
+    <div class="magic-cursor" id="magicCursor" aria-hidden="true"></div>
+    <div class="ripple-layer" id="rippleLayer" aria-hidden="true"></div>
+
+    <!-- Aurora background -->
+    <div class="aurora" aria-hidden="true">
+      <span class="aurora-blob blob-1"></span>
+      <span class="aurora-blob blob-2"></span>
+      <span class="aurora-blob blob-3"></span>
+      <span class="aurora-blob blob-4"></span>
+    </div>
+
+    <!-- Background stars + fireflies + petals layers -->
+    <canvas class="bg-canvas" id="bgCanvas" aria-hidden="true"></canvas>
+    <div class="petals-layer" id="petalsLayer" aria-hidden="true"></div>
+    <div class="fireflies-layer" id="firefliesLayer" aria-hidden="true"></div>
+
+    <!-- Music controls -->
+    <button class="music-upload" id="musicUploadBtn" type="button" aria-label="Choose background music" title="Choose your own background music">🎵</button>
+    <input id="musicFileInput" type="file" accept="audio/*" hidden />
+    <button class="music-toggle" id="musicToggle" aria-label="Toggle music" title="Toggle music">
+      <span class="music-toggle__icon" id="musicIcon">♪</span>
+    </button>
+
+    <!-- Easter egg: hidden teddy + moon -->
+    <button class="easter-egg easter-teddy" id="easterTeddy" aria-label="Hidden teddy bear">🧸</button>
+    <button class="easter-egg easter-moon" id="easterMoon" aria-label="Hidden moon">🌙</button>
+
+    <!-- Secret message overlay -->
+    <div class="secret-overlay" id="secretOverlay" aria-hidden="true">
+      <div class="secret-card glass">
+        <p class="secret-text" id="secretText"></p>
+        <button class="glow-btn" id="secretClose">Close</button>
+      </div>
+    </div>
+
+    <!-- ================= SECTION 1: LOADING SCREEN ================= -->
+    <section class="loader" id="loader">
+      <div class="loader__inner">
+        <p class="loader__line loader__line-1">Made with <span class="heart">❤️</span></p>
+        <p class="loader__line loader__line-2">Especially For You</p>
+        <div class="loader__bar"><span class="loader__bar-fill"></span></div>
+        <p class="loader__hint">Tap anywhere to begin</p>
+      </div>
+    </section>
+
+    <!-- ================= SECTION 1.5: PASSCODE SCREEN ================= -->
+    <section class="passcode-screen" id="passcode-screen">
+      <div class="passcode-wrapper">
+        <!-- Left side: Image -->
+        <div class="passcode-image-side">
+          <img class="passcode-image" id="passcodeImage" src=".\assets\photos\WhatsApp Image 2026-07-16 at 16.21.13 (1).jpeg" alt="Birthday surprise">
+          <div class="passcode-image-frame"></div>
+        </div>
+        
+        <!-- Right side: Form -->
+        <div class="passcode-container glass">
+          <h1 class="passcode-title">🎂 Birthday Passcode</h1>
+          <p class="passcode-hint" id="passcodeHint">Enter the passcode to unlock</p>
+          
+          <!-- Display for entered passcode -->
+          <div class="passcode-display">
+            <div class="passcode-dots" id="passcodeDisplay"></div>
+          </div>
+          <div style="margin-top:8px;color:rgba(255,255,255,0.8);font-size:0.95rem;" id="passcodeValue"></div>
+          
+          <!-- Number Pad -->
+          <div class="keypad">
+            <button class="keypad-btn" data-digit="1">1</button>
+            <button class="keypad-btn" data-digit="2">2</button>
+            <button class="keypad-btn" data-digit="3">3</button>
+            <button class="keypad-btn" data-digit="4">4</button>
+            <button class="keypad-btn" data-digit="5">5</button>
+            <button class="keypad-btn" data-digit="6">6</button>
+            <button class="keypad-btn" data-digit="7">7</button>
+            <button class="keypad-btn" data-digit="8">8</button>
+            <button class="keypad-btn" data-digit="9">9</button>
+            <button class="keypad-btn keypad-btn--zero" data-digit="0">0</button>
+            <button class="keypad-btn keypad-btn--delete" id="passcodeDelete">⌫ Delete</button>
+          </div>
+          
+          <!-- Error message -->
+          <p class="passcode-error" id="passcodeError"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= NEW: SURPRISE BOX ================= -->
+    <section class="scene scene--surprise" id="scene-surprise" data-section="S1">
+      <div class="surprise-wrap">
+        <h2 class="section-title">A surprise awaits you 🎁</h2>
+        <div class="surprise-box glass" id="surpriseBox">
+          <div class="box-lid" id="boxLid">
+            <div class="box-bow" aria-hidden="true"></div>
+          </div>
+          <div class="box-body" id="boxBody">
+            <div class="box-ribbon-vertical" aria-hidden="true"></div>
+            <div class="box-ribbon-horizontal" aria-hidden="true"></div>
+          </div>
+        </div>
+        <p class="section-sub" id="surpriseHint">Tap the gift to open</p>
+        <button class="glow-btn" data-continue="scene-birthday" id="surpriseContinue" style="display:none">Continue</button>
+      </div>
+    </section>
+
+    <!-- ================= NEW: BIRTHDAY STATS / CAKE ================= -->
+    <section class="scene scene--birthday" id="scene-birthday" data-section="S2">
+      <h2 class="section-title">Happy Birthday Cutiepie 🎉</h2>
+      <div class="birthday-stage glass">
+        <div class="bday-top">
+          <div class="bday-cake">🎂</div>
+          <div class="bday-info">
+            <div class="bday-row"><strong>Date:</strong> <span id="bdayDate">--</span></div>
+            <div class="bday-row"><strong>Day:</strong> <span id="bdayDay">--</span></div>
+            <div class="bday-row"><strong>Time:</strong> <span id="bdayTime">--:--:--</span></div>
+          </div>
+        </div>
+        <div class="bday-counters">
+          <div class="counter"><div class="counter-num" id="counter1">0</div><div class="counter-label">Years</div></div>
+          <div class="counter"><div class="counter-num" id="counter2">0</div><div class="counter-label">Birthday</div></div>
+
+        </div>
+        <button class="glow-btn" data-continue="scene-puzzle">See the Puzzle</button>
+      </div>
+    </section>
+
+    <!-- ================= NEW: PUZZLE GAME ================= -->
+    <section class="scene scene--puzzle" id="scene-puzzle" data-section="S3">
+      <h2 class="section-title">Birthday Puzzle 🧩</h2>
+      <p class="section-sub">Solve the sliding puzzle — then celebrate!</p>
+      <div class="puzzle-wrap glass">
+        <div class="puzzle-row">
+          <div class="puzzle-reference">
+            <p class="puzzle-reference__label">Reference image — match this picture:</p>
+            <img id="puzzleReferenceImg" class="puzzle-reference__img" src="./assets/photos/shinchan.jpg" alt="Puzzle reference" />
+          </div>
+          <div class="puzzle-grid" id="puzzleGrid"></div>
+        </div>
+        <div class="puzzle-actions">
+          <button class="glow-btn" id="shufflePuzzle">Shuffle Again</button>
+          <button class="glow-btn" id="giveUpPuzzle">Give Up</button>
+        </div>
+      </div>
+      <p class="puzzle-status">Solve the puzzle to unlock the continue button.</p>
+      <button class="glow-btn" data-continue="scene-earphones" id="puzzleContinue">Continue</button>
+    </section>
+
+    <!-- ================= SECTION 2: EARPHONE MESSAGE ================= -->
+    <section class="scene scene--earphones" id="scene-earphones" data-section="2">
+      <div class="earphone-wrap glass">
+        <div class="earphone-icon">🎧</div>
+        <h2 class="earphone-title">Wear your earphones</h2>
+        <p class="earphone-sub">Take a deep breath.</p>
+        <p class="earphone-sub earphone-sub--accent">This surprise was made only for you.</p>
+        <button class="glow-btn" data-continue="scene-envelope">Continue</button>
+      </div>
+    </section>
+
+    <!-- ================= SECTION 3: ENVELOPE ================= -->
+    <section class="scene scene--envelope" id="scene-envelope" data-section="3">
+      <p class="envelope-tag">For My Favorite Person ❤️</p>
+      <div class="envelope" id="envelope">
+        <div class="envelope__back"></div>
+        <div class="letter" id="letter">
+          <div class="letter__fold letter__fold--top"></div>
+          <p class="letter__peek">A letter awaits you…</p>
+        </div>
+        <div class="envelope__front"></div>
+        <div class="envelope__flap" id="envelopeFlap"></div>
+        <div class="wax-seal" id="waxSeal">
+          <span class="wax-seal__mark">❤</span>
+        </div>
+      </div>
+      <p class="envelope-hint">Tap the wax seal to open</p>
+    </section>
+
+    <!-- ================= SECTION 4: LOVE LETTER ================= -->
+    <section class="scene scene--letter" id="scene-letter" data-section="4">
+      <div class="letter-paper" id="letterPaper">
+        <div class="letter-paper__lines">
+          <h3 class="letter-paper__heading">My Dearest,</h3>
+          <p class="letter-paper__body" id="letterBody"></p>
+          <p class="letter-paper__sign" id="letterSign"></p>
+        </div>
+      </div>
+      <button class="glow-btn" data-continue="scene-gallery">Continue Our Story ❤️</button>
+    </section>
+
+    <!-- ================= SECTION 5: PHOTO GALLERY ================= -->
+    <section class="scene scene--gallery" id="scene-gallery" data-section="5">
+      <h2 class="section-title">Let me show my favourite person🧿🥰</h2>
+      <div class="gallery" id="gallery"></div>
+      <button class="glow-btn" data-continue="scene-reasons">12 Reasons I Love You ❤️</button>
+      <!-- Lightbox -->
+      <div class="lightbox" id="lightbox" aria-hidden="true">
+        <button class="lightbox__close" id="lightboxClose" aria-label="Close">✕</button>
+        <figure class="lightbox__figure">
+          <img class="lightbox__img" id="lightboxImg" alt="" />
+          <figcaption class="lightbox__caption" id="lightboxCaption"></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ================= SECTION 6: REASONS I LOVE YOU ================= -->
+    <section class="scene scene--reasons" id="scene-reasons" data-section="6">
+      <h2 class="section-title">Reasons I Love You</h2>
+      <div class="reasons-grid" id="reasonsGrid"></div>
+      <button class="glow-btn" data-continue="scene-notes">Read My Love Notes ❤️</button>
+    </section>
+
+    <!-- ================= SECTION 8: LOVE NOTES (bottles) ================= -->
+    <section class="scene scene--notes" id="scene-notes" data-section="8">
+      <h2 class="section-title">Love Notes</h2>
+      <p class="section-sub">Tap a bottle to read a note.</p>
+      <div class="bottles" id="bottles"></div>
+      <button class="glow-btn" data-continue="scene-wishes">See My Wishes For You ❤️</button>
+    </section>
+
+    <!-- ================= SECTION 9: WISH WALL ================= -->
+    <section class="scene scene--wishes" id="scene-wishes" data-section="9">
+      <h2 class="section-title">Wish Wall</h2>
+      <div class="wish-wall" id="wishWall"></div>
+      <button class="glow-btn" data-continue="scene-heartrain">Let's Celebrate ❤️</button>
+    </section>
+
+    <!-- ================= SECTION 10: HEART RAIN ================= -->
+    <section class="scene scene--heartrain" id="scene-heartrain" data-section="10">
+      <h2 class="section-title heart-rain-title">A Rain of Hearts</h2>
+      <p class="section-sub">Every heart is a thought of you.</p>
+      <div class="heart-rain" id="heartRain" aria-hidden="true"></div>
+      <button class="glow-btn" data-continue="scene-cake">Make a Wish ❤️</button>
+    </section>
+
+    <!-- ================= SECTION 11: BIRTHDAY CAKE ================= -->
+    <section class="scene scene--cake" id="scene-cake" data-section="11">
+      <h2 class="cake-title" id="cakeTitle">Make a wish…</h2>
+      <div class="cake-stage" id="cakeStage">
+        <div class="cake" id="cake">
+          <div class="cake__plate"></div>
+          <div class="cake__layer cake__layer--bottom">
+            <div class="cake__drip"></div>
+          </div>
+          <div class="cake__layer cake__layer--middle"></div>
+          <div class="cake__layer cake__layer--top"></div>
+          <div class="candles" id="candles"></div>
+        </div>
+      </div>
+      <p class="cake-hint" id="cakeHint">Tap the candles to light them, then blow into your mic.</p>
+      <button class="glow-btn cake-action" id="cakeAction">Enable microphone & blow</button>
+    </section>
+
+    <!-- ================= SECTION 12: FINAL SURPRISE ================= -->
+    <section class="scene scene--final" id="scene-final" data-section="12">
+      <div class="final-content">
+        <h1 class="final-title" id="finalTitle">Happy Birthday ❤️</h1>
+        <p class="final-line">No matter where life takes us…</p>
+        <p class="final-line final-line--accent">You'll always be special to me.</p>
+        <p class="final-signature" id="finalSignature"></p>
+      </div>
+    </section>
+
+    <!-- ================= SECTION 13: ENDING ================= -->
+    <section class="scene scene--ending" id="scene-ending" data-section="13">
+      <div class="ending-wrap glass">
+        <h2 class="ending-title">The End… or a new beginning?</h2>
+        <div class="ending-actions">
+          <button class="glow-btn" id="replayBtn">Replay</button>
+          <button class="glow-btn" id="downloadBtn">Download Memories</button>
+          <button class="glow-btn" id="shareBtn">Share</button>
+        </div>
+      </div>
+    </section>
+
+    <script type="module" src="./js/script.js"></script>
+  </body>
+</html>
